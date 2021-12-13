@@ -1,0 +1,5 @@
+isak
+admin
+pi
+potet
+root

