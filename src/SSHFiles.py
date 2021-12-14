@@ -33,6 +33,14 @@ def detectOS():
 -------------------------------------------------------FILES-------------------------------------------------------
 '''
 
+def checkIfFileExist(filePath):
+    if os.path.isfile(filePath):
+        #File exist
+        return True
+    else:
+        #File does not exist
+        return False
+
 def getPathToCurrentDir():
     #nameOfParentFolder & fileToFind should be a string with the raw name of the file
     #Example:
@@ -85,31 +93,43 @@ def getAmountOfLinesInFile(nameOfFile):
 
     return line_count
 
+def makeDirectory(pathAndFolderName):
+    if not checkIfFileExist(pathAndFolderName):
+        #If true folder does not exist
+        os.mkdir(pathAndFolderName)
+    else:
+        print("Folder already exists or error.")
+    
 def removeFile(pathAndFilename):
     if os.path.exists(pathAndFilename):
         os.remove(pathAndFilename)
         print("Removing file named: " + pathAndFilename)
     else:
-        print("File: " + pathAndFilename + " does not exist.")
-    
+        print("Error: file: '" + pathAndFilename + "' does not exist.")
 
 '''
 -------------------------------------------------------TXT HANDLING-------------------------------------------------------
 '''
 
-def createTXTFileInSpecifiedDir(nameOfFile, path):
+def readTXTFile(filePath):
+    #Reads a txt file at specified location
+    #filepath can not have .txt at end of name
+    fileLine = open(filePath)
+    fileLines = fileLine.readlines()
+    return fileLines
+
+def createTXTFileInSpecifiedDir(filePath, name):
     #Creates a txt file at specified location
-    #nameOfFile can not have .txt at end of name
-    filePath = os.path.join(path, nameOfFile)
-    if not os.path.isfile(filePath):
+    #filepath can not have .txt at end of name
+    if not os.path.isfile(filePath + ".txt"):
         #File does not exist, then creates the file
-        f = open(filePath + ".txt", "x")
+        f = open(name + ".txt", "x")
     else:    
         return -1
         #Else file already exists
 
-def addTextToSpecifiedFile(nameOfFile, path, lineToAdd):
-    filePath = os.path.join(path, nameOfFile)
+def addTextToSpecifiedFile(filePath, lineToAdd):
+    print(filePath)
     if os.path.isfile(filePath):
         file_object = open(filePath, 'a')
         # Append 'hello' at the end of file
@@ -117,7 +137,7 @@ def addTextToSpecifiedFile(nameOfFile, path, lineToAdd):
         # Close the file
         file_object.close()
     else:
-        print("File does not exist")
+        print("Could not write to specified file.")
 
 def addIPsToListOfIPs():
     for ip in SSHScanNetwork.getListWithIpsOfOpenSSHPorts():
@@ -128,7 +148,8 @@ def addIPsToListOfIPs():
 '''
 
 #print(getAmountOfLinesInFile(getPathToCurrentDir() + "rockyou2.txt"))
-removeFile(getPathToCurrentDir() + 'listOfIPs.txt')
+#removeFile(getPathToCurrentDir() + 'listOfIPs.txt')
 #time.sleep(2)
-createTXTFileInSpecifiedDir('listOfIPs', getPathToCurrentDir())
-addIPsToListOfIPs()
+#createTXTFileInSpecifiedDir('listOfIPs', getPathToCurrentDir())
+#addIPsToListOfIPs()
+#print(checkIfFileExist(getPathToCurrentDir() + 'listOfIPs.txt'))

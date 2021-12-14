@@ -8,7 +8,7 @@ import subprocess
 def getListWithIpsOfOpenSSHPorts():
     #Returns list with ips that have an open SSH port
 
-    ip = str(getMyIp())
+    ip = str(getMyLocalIp())
     subnett = [char for char in ip]
     subnettMask = subnett[len(subnett) - 3] + subnett[len(subnett) - 2] + subnett[len(subnett) - 1]
     counter = 0
@@ -43,7 +43,12 @@ def getListWithIpsOfOpenSSHPorts():
 
     return listWithIpsOfOpenSSHPorts
 
-def getMyIp():
+def getMyGlobalIp():
+    globalIP = os.popen("dig +short myip.opendns.com @resolver1.opendns.com").read()
+    splitList = globalIP.split("\n")
+    return splitList[0]
+
+def getMyLocalIp():
     #Dynamically returns my IP
     output = os.popen("ip a | grep 'inet ...' | awk -F' ' '{print $2'}").read()
     ipSingleString = ""
@@ -56,3 +61,5 @@ def getMyIp():
         ipSingleString = ipSingleString + c
 
     return ipList[1]
+
+print(getMyGlobalIp())
