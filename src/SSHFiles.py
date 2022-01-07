@@ -118,12 +118,12 @@ def readTXTFile(filePath):
     fileLines = fileLine.readlines()
     return fileLines
 
-def createTXTFileInSpecifiedDir(filePath, name):
+def createTXTFileInSpecifiedDir(filePathAndName):
     #Creates a txt file at specified location
-    #filepath can not have .txt at end of name
-    if not os.path.isfile(filePath + ".txt"):
+    #print(filePathAndName)
+    if not os.path.isfile(filePathAndName):
         #File does not exist, then creates the file
-        f = open(name + ".txt", "x")
+        f = open(filePathAndName, "x")
     else:    
         return -1
         #Else file already exists

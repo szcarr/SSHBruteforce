@@ -17,7 +17,7 @@ def getListWithIpsOfOpenSSHPorts():
         baseIP = baseIP + subnett[i]
         if subnett[i] == ".":
             counter = counter + 1
-            print(counter)
+            #print(counter)
         if counter == 3:
             break
     
@@ -62,4 +62,4 @@ def getMyLocalIp():
 
     return ipList[1]
 
-print(getMyGlobalIp())
+#print(getMyGlobalIp())
